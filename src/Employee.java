@@ -1,14 +1,14 @@
-public class Employee {
+public class Employee implements Comparable<Employee>{
     private String name;
     private String lastName;
     private int age;
-    private static int salary;
+    private int salary;
 
-    public Employee(String name, String lastName, int age) {
+    public Employee(String name, String lastName, int age, int salary) {
         this.name = name;
         this.lastName = lastName;
         this.age = age;
-        salary = 500;
+        this.salary = salary;
     }
 
     public String getName() {
@@ -40,7 +40,7 @@ public class Employee {
     }
 
     public void setSalary(int salary) {
-        Employee.salary = salary;
+        this.salary = salary;
     }
 
     @Override
@@ -50,5 +50,10 @@ public class Employee {
                 ", lastName = '" + lastName + '\'' +
                 ", age = " + age +
                 ", salary = " + salary;
+    }
+
+    @Override
+    public int compareTo(Employee o) {
+        return this.salary - o.salary;
     }
 }
