@@ -1,29 +1,46 @@
-import java.util.Arrays;
-import java.util.Comparator;
-
 public class Main {
     public static void main(String[] args) {
-        Employee e1 = new Employee("Name1", "LastName1", 32, 500);
-        Employee e2 = new Employee("Name2", "LastName2", 30, 100);
-        Employee e3 = new Employee("Name3", "LastName3", 35, 800);
-        Employee m1 = new Manager("Name4", "LastName4", 55, 500);
-        Employee[] employeesArray = {e1, e2, e3, m1};
-        for (Employee emp : employeesArray) {
-            System.out.println(emp);
+        Buyer[] buyers = {new Buyer("Mike", 20, "+791233211234"),
+                new Buyer("John", 39, "+791233213456")};
+        Product[] products = {new Product("Something1", 23.33),
+                new Product("Something2", 13.33),
+                new Product("Something3", 28.53),
+                new Product("Something4", 4.03),
+                new Product("Something5", 123.33),};
+        Order[] orders = new Order[5];
+        try {
+            orders[0] = makePurchase(buyers[0], products[0], 2);
+            orders[1] = makePurchase(buyers[1], products[2], -1);
+            orders[2] = makePurchase(buyers[0], products[6], 1);
+            orders[3] = makePurchase(buyers[1], products[4], 10);
+            orders[4] = makePurchase(buyers[2], products[1], 3);
+        } catch (CustomerException | ProductException | AmountException e) {
+            System.out.println("Ошибка при совершении покупки: " + e.getMessage());
+        } finally {
+            int totalPurchases = 0;
+            for (Order order : orders) {
+                if (order != null) {
+                    totalPurchases += order.getQuantity();
+                }
+            }
+            System.out.println("Итоговое количество совершенных покупок: " + totalPurchases);
+        }
+    }
+
+    public static Order makePurchase(Buyer buyer, Product product, int quantity)
+            throws CustomerException, ProductException, AmountException {
+        if (buyer == null) {
+            throw new CustomerException("Несуществующий покупатель.");
         }
 
-        Manager.raiseSalary(employeesArray, 300);
-        System.out.println();
-
-        for (Employee emp : employeesArray) {
-            System.out.println(emp);
+        if (product == null) {
+            throw new ProductException("Несуществующий товар.");
         }
-        System.out.println("Original array: " + Arrays.toString(employeesArray));
-        Arrays.sort(employeesArray);
-        System.out.println("Sorted by salary array: " + Arrays.toString(employeesArray));
-        Comparator<Employee> ageComparator = new AgeComparator();
-        Arrays.sort(employeesArray, ageComparator);
-        System.out.println("Sorted by age array: " + Arrays.toString(employeesArray));
 
+        if (quantity <= 0 || quantity > 100) {
+            throw new AmountException("Неверное количество товара.");
+        }
+
+        return new Order(buyer, product, quantity);
     }
 }
