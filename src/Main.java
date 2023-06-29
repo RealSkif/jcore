@@ -1,46 +1,57 @@
+import java.io.FileInputStream;
+import java.io.IOException;
+
 public class Main {
     public static void main(String[] args) {
-        Buyer[] buyers = {new Buyer("Mike", 20, "+791233211234"),
-                new Buyer("John", 39, "+791233213456")};
-        Product[] products = {new Product("Something1", 23.33),
-                new Product("Something2", 13.33),
-                new Product("Something3", 28.53),
-                new Product("Something4", 4.03),
-                new Product("Something5", 123.33),};
-        Order[] orders = new Order[5];
-        try {
-            orders[0] = makePurchase(buyers[0], products[0], 2);
-            orders[1] = makePurchase(buyers[1], products[2], -1);
-            orders[2] = makePurchase(buyers[0], products[6], 1);
-            orders[3] = makePurchase(buyers[1], products[4], 10);
-            orders[4] = makePurchase(buyers[2], products[1], 3);
-        } catch (CustomerException | ProductException | AmountException e) {
-            System.out.println("Ошибка при совершении покупки: " + e.getMessage());
-        } finally {
-            int totalPurchases = 0;
-            for (Order order : orders) {
-                if (order != null) {
-                    totalPurchases += order.getQuantity();
-                }
-            }
-            System.out.println("Итоговое количество совершенных покупок: " + totalPurchases);
+        int[] field = readFieldFromFile("field.bin");
+
+        if (field != null) {
+            drawField(field);
         }
     }
 
-    public static Order makePurchase(Buyer buyer, Product product, int quantity)
-            throws CustomerException, ProductException, AmountException {
-        if (buyer == null) {
-            throw new CustomerException("Несуществующий покупатель.");
-        }
+    public static int[] readFieldFromFile(String fileName) {
+        int[] field = new int[9];
 
-        if (product == null) {
-            throw new ProductException("Несуществующий товар.");
-        }
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            int value;
+            int index = 0;
 
-        if (quantity <= 0 || quantity > 100) {
-            throw new AmountException("Неверное количество товара.");
-        }
+            while ((value = fis.read()) != -1) {
+                for (int i = 0; i < 8; i += 2) {
+                    int fieldValue = (value >> i) & 3;
+                    field[index++] = fieldValue;
+                    if (index >= 9) {
+                        break;
+                    }
+                }
+            }
 
-        return new Order(buyer, product, quantity);
+            return field;
+        } catch (IOException e) {
+            System.out.println("Ошибка при чтении файла: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static void drawField(int[] field) {
+        System.out.println("Поле игры:");
+
+        for (int i = 0; i < field.length; i++) {
+            char symbol = switch (field[i]) {
+                case 1 -> 'X';
+                case 2 -> 'O';
+                case 3 -> '.';
+                default -> ' ';
+            };
+
+            System.out.print(symbol);
+
+            if ((i + 1) % 3 == 0) {
+                System.out.println();
+            } else {
+                System.out.print(" ");
+            }
+        }
     }
 }
